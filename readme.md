@@ -1,4 +1,4 @@
-# 4-Month Kubernetes Learning Roadmap for Beginners (2025)
+# ![](https://img.icons8.com/?size=50&id=cvzmaEA4kC0o&format=png&color=000000) Kubernetes Learning Roadmap for Beginners (2025)
 
 This structured roadmap will take you from Kubernetes novice to having intermediate-to-advanced skills in 4 months, with specific learning materials for each stage.
 
