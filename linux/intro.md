@@ -1,203 +1,306 @@
 # Linux Operating System (OS)
 
 - [Linux Operating System (OS)](#linux-operating-system-os)
+  - [What is Linux?](#what-is-linux)
   - [Linux Distributions (Distros) and Basics](#linux-distributions-distros-and-basics)
   - [Linux Basics and System Startup](#linux-basics-and-system-startup)
     - [Boot Process Overview](#boot-process-overview)
     - [Linux File Systems Basics](#linux-file-systems-basics)
       - [The Filesystem Hierarchy Standard (FHS)](#the-filesystem-hierarchy-standard-fhs)
+  - [Command Line Operations](#command-line-operations)
+    - [The Command Line](#the-command-line)
+    - [Basic Commands](#basic-commands)
+      - [Turn on/off GUI](#turn-onoff-gui)
+    - [Locating](#locating)
+      - [Locating Programs](#locating-programs)
+    - [Directory Navigation Commands](#directory-navigation-commands)
 
-> **What is Linux?**
->
-> Linux is a free, open-source operating system used on:
->
-> - Servers
-> - Desktop computers
-> - Embedded systems
->
-> **Key Features:**
->
-> - **Stable** - Runs reliably without crashes
-> - **Secure** - Protected against viruses and malware
-> - **Flexible** - Can be customized for different needs
->
-> **Background:**
->
-> - Based on Unix OS
-> - Developed by a global community of developers
+## What is Linux?
+
+Linux is a free, open-source operating system. You can find it running on:
+
+- Servers
+- Desktop computers
+- Embedded systems
+
+**Why use Linux?**
+
+- **Stable** - Works reliably without crashing
+- **Secure** - Better protection from viruses and malware
+- **Flexible** - Easy to customize for your needs
+
+**Quick History:** Linux is based on Unix and built by developers worldwide.
 
 ## Linux Distributions (Distros) and Basics
 
-> **1. What are Linux Distributions?**
-> Linux distributions are different versions of the Linux OS, each with its own features and user interfaces.
-> Popular distributions include:
->
-> - Ubuntu
-> - Fedora
-> - Debian
-> - CentOS
-> - Arch Linux
-> - Red Hat Enterprise Linux (RHEL)
-> - SUSE Linux Enterprise
-> - Linux Mint
-> - Manjaro
->
-> **2. Choosing a Distribution:**
->
-> - Consider your needs (e.g., user-friendliness, performance, support)
-> - Try out different distros using live USBs or virtual machines
->
-> **3. Basic Components of Linux:**
->
-> - **Kernel** - Core of the OS that manages hardware and system resources
-> - **Shell** - Command-line interface for interacting with the OS
-> - **File System** - Organizes and stores files on the disk
-> - **Processes** - Programs running on the system
-> - **Users and Permissions** - Manage access to files and system resources
-> - **Package Management** - Tools for installing and managing software
-> - **Services and Daemons** - Background processes that provide functionality
-> - **Networking** - Configuring and managing network connections
-> - **System Logs** - Tracking system activity and errors
->
-> **System Startup Process:**
->
-> - **BIOS/UEFI** - Hardware initialization
-> - **Boot Loader** - Loads the kernel (e.g., GRUB)
-> - **Kernel Initialization** - Starts the core OS
-> - **Init System** - Starts services (systemd, init, or upstart)
-> - **Runlevels/Targets** - Defines system state and services to run
+- **What are Linux Distributions?**
+
+  > Think of distributions (distros) as different flavors of Linux. Each one looks and works a bit differently.
+
+- **Popular choices:**
+
+  - Ubuntu (beginner-friendly)
+  - Fedora
+  - Debian
+  - CentOS
+  - Arch Linux
+  - Red Hat Enterprise Linux (RHEL)
+  - SUSE Linux Enterprise
+  - Linux Mint
+  - Manjaro
+
+- **How to pick one:**
+
+  - Think about what you need (easy to use? fast performance? good support?)
+  - Test a few using live USBs or virtual machines
+
+- **What makes up Linux:**
+
+  - **Kernel** - The brain that manages your hardware
+  - **Shell** - Where you type commands
+  - **File System** - How your files are organized
+  - **Processes** - Programs currently running
+  - **Users and Permissions** - Controls who can access what
+  - **Package Management** - Tools to install software
+  - **Services and Daemons** - Programs running in the background
+  - **Networking** - How your computer connects to networks
+  - **System Logs** - Records what happens on your system
+
+- **How Linux starts up:**
+
+  1. **BIOS/UEFI** - Checks your hardware
+  2. **Boot Loader** - Loads Linux (uses GRUB)
+  3. **Kernel** - Starts the core system
+  4. **Init System** - Launches services (usually systemd)
+  5. **Ready to use** - Shows login screen
 
 ## Linux Basics and System Startup
 
 ### Boot Process Overview
 
-> **Boot Process Steps:**
->
-> **1. BIOS/UEFI Initialization**
->
-> - Computer powers on
-> - Performs hardware checks (POST - Power-On Self-Test)
-> - Finds boot device (hard drive, SSD, or USB)
-> - Loads boot loader
->
-> **2. Boot Loader (GRUB)**
->
-> - Shows menu to choose operating system
-> - Loads Linux kernel into memory
-> - Often stored in MBR or EFI partition
-> - Can be customized for dual-boot setups
-> - Hands control to kernel
->
-> **3. Kernel Initialization**
->
-> - Detects and initializes hardware
-> - Mounts root filesystem (/)
-> - Loads necessary drivers
-> - Sets up memory and process management
-> - Starts init system
->
-> **4. Init System (systemd)**
->
-> - Reads configuration files
-> - Starts essential services:
->   - Networking
->   - Logging
->   - System daemons
-> - Manages system state (targets/runlevels)
->
-> **5. System Ready**
->
-> - Starts remaining services based on target:
->   - **Multi-user target**: Command-line interface
->   - **Graphical target**: GUI desktop environment
-> - Displays login prompt
-> - System is ready for use
->
-> **Shutdown Process:**
->
-> - Stops all running services gracefully
-> - Unmounts filesystems
-> - Powers off hardware safely
+- **Step 1: BIOS/UEFI Initialization**
+
+  - When you turn on your computer:
+
+    - Hardware checks run automatically (POST test)
+    - Finds where Linux is installed
+    - Loads the boot loader
+
+- **Step 2: Boot Loader (GRUB)**
+
+  - Shows a menu to pick your operating system
+  - Loads Linux into memory
+  - Useful for computers with multiple OS installed
+
+- **Step 3: Kernel Initialization**
+
+  - The kernel takes over and:
+
+    - Detects your hardware (keyboard, mouse, etc.)
+    - Connects to your hard drive
+    - Loads drivers
+    - Sets up memory
+    - Starts the init system
+
+- **Step 4: Init System (systemd)**
+
+  - Systemd starts important services:
+
+    - Network connections
+    - System logging
+    - Background programs
+
+- **Step 5: System Ready**
+
+  - Linux finishes loading:
+
+    - **Text mode**: Command-line interface
+    - **Graphics mode**: Desktop environment
+    - Shows login screen
+    - You're ready to work!
+
+- **When you shut down:**
+
+  - Linux carefully:
+
+    - Closes all programs
+    - Saves your data
+    - Disconnects from drives
+    - Powers off safely
 
 ### Linux File Systems Basics
 
-> **Common File Systems:**
->
-> - **ext4** - Default Linux filesystem; reliable for desktops/servers
-> - **XFS** - High performance; used for large files and databases
-> - **Btrfs** - Advanced features like snapshots; used in modern Linux systems
-> - **FAT32** - Cross-platform compatibility; used for USB drives and shared storage
->
-> **Flash Storage File Systems:**
->
-> - **F2FS** - Optimized for SSDs and SD cards; used in Android devices
-> - **JFFS2** - For embedded systems with NOR flash memory
-> - **UBIFS** - For embedded Linux devices with NAND flash
->
-> **Database File Systems:**
->
-> - **Oracle ASM** - Manages storage for Oracle databases
-> - **IBM GPFS** - High-performance shared storage for clusters
->
-> **Special Purpose File Systems:**
->
-> - **tmpfs** - RAM-based storage; fast temporary files (e.g., /tmp)
-> - **procfs** - Virtual filesystem; system/process info (e.g., /proc)
-> - **sysfs** - Virtual filesystem; hardware/driver info (e.g., /sys)
-> - **devtmpfs** - Device files; hardware access (e.g., /dev)
->
-> **Network File Systems:**
->
-> - **NFS** - Share files across Linux/Unix networks
-> - **CIFS/SMB** - Share files with Windows systems
-> - **GlusterFS** - Distributed storage across multiple servers
+- **Common file systems explained:**
+
+  - **For everyday use:**
+
+    - **ext4** - Standard choice for Linux (reliable and tested)
+    - **XFS** - Better for large files and databases
+    - **Btrfs** - Modern option with backup features
+    - **FAT32** - Works with Windows and Mac (good for USB drives)
+
+- **For flash storage (SSDs and memory cards):**
+
+  - **F2FS** - Best for SSDs and SD cards (used in Android)
+  - **JFFS2** - For small embedded devices
+  - **UBIFS** - For industrial Linux devices
+
+- **For databases:**
+
+  - **Oracle ASM** - Manages Oracle database storage
+  - **IBM GPFS** - For large computer clusters
+
+- **Special types:**
+
+  - **tmpfs** - Uses RAM (very fast, but temporary)
+  - **procfs** - Shows system information in /proc
+  - **sysfs** - Shows hardware information in /sys
+  - **devtmpfs** - Represents hardware devices in /dev
+
+- **For sharing files over networks:**
+
+  - **NFS** - Share between Linux computers
+  - **CIFS/SMB** - Share with Windows computers
+  - **GlusterFS** - Spread storage across multiple servers
 
 #### The Filesystem Hierarchy Standard (FHS)
 
-> The FHS defines the directory structure and directory contents in Linux systems.
->
-> **Key Directories:**
+- The FHS defines the directory structure and directory contents in Linux systems.
 
-```mermaid
-graph LR
-        root["/"] --> bin["/bin<br/>ls, cp, mkdir"]
-        root --> sbin["/sbin<br/>fsck, reboot"]
-        root --> etc["/etc<br/>nginx.conf, ssh config"]
-        root --> home["/home<br/>/home/john"]
-        root --> root_dir["/root<br/>Root user home"]
-        root --> var["/var<br/>logs, cache"]
-        root --> tmp["/tmp<br/>Temp files"]
-        root --> usr["/usr<br/>User programs"]
-        root --> opt["/opt<br/>Chrome, Slack"]
-        root --> boot["/boot<br/>vmlinuz, grub"]
-        root --> dev["/dev<br/>sda, tty"]
-        root --> proc["/proc<br/>Process info"]
-        root --> sys["/sys<br/>Hardware info"]
-        root --> media["/media<br/>USB, DVD"]
-        root --> mnt["/mnt<br/>Mounted drives"]
-        root --> lib["/lib<br/>System libraries"]
+- **Key Directories:**
+
+  ```mermaid
+  graph LR
+          root["/"] --> bin["/bin<br/>ls, cp, mkdir"]
+          root --> sbin["/sbin<br/>fsck, reboot"]
+          root --> etc["/etc<br/>nginx.conf, ssh config"]
+          root --> home["/home<br/>/home/john"]
+          root --> root_dir["/root<br/>Root user home"]
+          root --> var["/var<br/>logs, cache"]
+          root --> tmp["/tmp<br/>Temp files"]
+          root --> usr["/usr<br/>User programs"]
+          root --> opt["/opt<br/>Chrome, Slack"]
+          root --> boot["/boot<br/>vmlinuz, grub"]
+          root --> dev["/dev<br/>sda, tty"]
+          root --> proc["/proc<br/>Process info"]
+          root --> sys["/sys<br/>Hardware info"]
+          root --> media["/media<br/>USB, DVD"]
+          root --> mnt["/mnt<br/>Mounted drives"]
+          root --> lib["/lib<br/>System libraries"]
+  ```
+
+  > **Directory Usage Examples:**
+  >
+  > - **/bin** - Essential commands: `ls`, `cp`, `mkdir`
+  > - **/sbin** - System commands: `fsck`, `reboot`, `iptables`
+  > - **/etc** - Configuration: `nginx.conf`, `ssh/sshd_config`
+  > - **/home** - User directories: `/home/john/documents`
+  > - **/root** - Root user's home directory
+  > - **/var** - Variable data: `/var/log/syslog`, `/var/cache`
+  > - **/tmp** - Temporary files cleared on reboot
+  > - **/usr** - User programs: `/usr/bin/git`, `/usr/lib`
+  > - **/opt** - Optional software: Google Chrome, Slack
+  > - **/boot** - Boot files: `vmlinuz` (kernel), `grub/`
+  > - **/dev** - Device files: `sda` (disk), `tty` (terminal)
+  > - **/proc** - Process info: `/proc/cpuinfo`, `/proc/meminfo`
+  > - **/sys** - Hardware info: device drivers, kernel modules
+  > - **/media** - Removable media: USB drives, DVDs, CDs
+  > - **/mnt** - Temporary mount points for filesystems
+  > - **/lib** - Essential libraries for `/bin` and `/sbin`
+  >
+  > - **Notes:**
+  >   - File and directory names are case-sensitive
+  >     - `File.txt` and `file.txt` are different
+  >   - Use commands like `ls`, `cd`, `pwd`, `mkdir`, `rm` to navigate and manage files
+
+## Command Line Operations
+
+The command line lets you control Linux by typing text commands. It’s powerful and fast once you get used to it.
+
+### The Command Line
+
+Commands usually look like this:
+
+```shell
+command [options] [arguments]
+
+# Example:
+ls -l /home/user
 ```
 
-> **Directory Usage Examples:**
->
-> - **/bin** - Essential commands: `ls`, `cp`, `mkdir`
-> - **/sbin** - System commands: `fsck`, `reboot`, `iptables`
-> - **/etc** - Configuration: `nginx.conf`, `ssh/sshd_config`
-> - **/home** - User directories: `/home/john/documents`
-> - **/root** - Root user's home directory
-> - **/var** - Variable data: `/var/log/syslog`, `/var/cache`
-> - **/tmp** - Temporary files cleared on reboot
-> - **/usr** - User programs: `/usr/bin/git`, `/usr/lib`
-> - **/opt** - Optional software: Google Chrome, Slack
-> - **/boot** - Boot files: `vmlinuz` (kernel), `grub/`
-> - **/dev** - Device files: `sda` (disk), `tty` (terminal)
-> - **/proc** - Process info: `/proc/cpuinfo`, `/proc/meminfo`
-> - **/sys** - Hardware info: device drivers, kernel modules
-> - **/media** - Removable media: USB drives, DVDs, CDs
-> - **/mnt** - Temporary mount points for filesystems
-> - **/lib** - Essential libraries for `/bin` and `/sbin`
->
-> - **Notes:**
->   - File and directory names are case-sensitive
->     - `File.txt` and `file.txt` are different
->   - Use commands like `ls`, `cd`, `pwd`, `mkdir`, `rm` to navigate and manage files
+- `command` is what you want to do (like `ls` to list files)
+- `[options]` change how the command works (like `-l` for more details)
+- `[arguments]` are extra info (like a folder name)
+
+### Basic Commands
+
+#### Turn on/off GUI
+
+- To switch to text mode (no GUI):
+
+  ```shell
+  sudo systemctl stop gdm
+
+  # or
+
+  sudo telinit 3
+  ```
+
+- To switch back to GUI mode:
+
+  ```shell
+  sudo systemctl start gdm
+
+  # or
+
+  sudo telinit 5
+  ```
+
+### Locating
+
+- Softwares programs and packages usually there in a particular location depending on their type and purpose. Here are some common locations:
+
+  - **/bin** - Essential command binaries (programs)
+  - **/sbin** - System binaries (programs for system admin)
+  - **/usr/bin** - Non-essential user command binaries
+  - **/usr/sbin** - Non-essential system binaries
+  - **/usr/local/bin** - Locally compiled user binaries
+  - **/usr/local/sbin** - Locally compiled system binaries
+  - **/lib** - Essential shared libraries
+  - **/usr/lib** - Non-essential shared libraries
+  - **/usr/local/lib** - Locally compiled shared libraries
+  - **/opt** - Optional software packages
+  - **/etc** - Configuration files
+  - **/var/log** - Log files
+
+#### Locating Programs
+
+- To find where a program is located, you can use the `which` or `whereis` commands.
+
+  - Example using `which`:
+
+    ```shell
+    which python3
+    ```
+
+    This will return the path to the `python3` executable, e.g., `/usr/bin/python3`.
+
+  - Example using `whereis`:
+
+    ```shell
+    whereis python3
+    ```
+
+    This will return multiple locations related to `python3`, including binaries, source files
+
+### Directory Navigation Commands
+
+- **Change Directory (`cd`)**: Move between directories.
+
+  ```shell
+  cd /path/to/directory  # Go to specified directory
+  cd ..                  # Go up one level
+  cd ~                   # Go to home directory
+  cd $HOME              # Go to home directory
+  cd -                   # Go to previous directory
+  ```
