@@ -1,107 +1,343 @@
-# Directory and File Commands
+# Working with Folders and Files
 
-> Navigating the filesystem is a fundamental skill in Linux. Here are some essential commands for directory navigation:
+> Learn the basic commands to move around and work with folders and files in Linux.
 
-- [Directory and File Commands](#directory-and-file-commands)
-  - [Change Directory (`cd`): Move between directories.](#change-directory-cd-move-between-directories)
-  - [Absolute vs Relative Paths](#absolute-vs-relative-paths)
-  - [Exploring FileSystem](#exploring-filesystem)
-  - [Hard Links vs Soft Links](#hard-links-vs-soft-links)
+## Table of Contents
+
+- [Working with Folders and Files](#working-with-folders-and-files)
+  - [Table of Contents](#table-of-contents)
+  - [Moving Around Folders](#moving-around-folders)
+    - [Change Directory (`cd`)](#change-directory-cd)
+    - [Understanding Paths](#understanding-paths)
+  - [Looking Around](#looking-around)
+    - [List What's Here (`ls`)](#list-whats-here-ls)
+    - [Show as Tree (`tree`)](#show-as-tree-tree)
+    - [Where Am I? (`pwd`)](#where-am-i-pwd)
+  - [Working with Folders](#working-with-folders)
+    - [Create Folders (`mkdir`)](#create-folders-mkdir)
+    - [Delete Empty Folders (`rmdir`)](#delete-empty-folders-rmdir)
+    - [Delete Any Folder (`rm`)](#delete-any-folder-rm)
+  - [Moving and Copying](#moving-and-copying)
+    - [Move or Rename (`mv`)](#move-or-rename-mv)
+    - [Copy (`cp`)](#copy-cp)
+  - [Creating Links](#creating-links)
+    - [What Are Links?](#what-are-links)
     - [Hard Links](#hard-links)
-      - [Example of Creating a Hard Link](#example-of-creating-a-hard-link)
-    - [Soft Links (Symbolic Links)](#soft-links-symbolic-links)
-      - [Example of Creating a Soft Link](#example-of-creating-a-soft-link)
-      - [What is the use of Links?](#what-is-the-use-of-links)
+    - [Soft Links](#soft-links)
+  - [Working with Files](#working-with-files)
+    - [Count Things (`wc`)](#count-things-wc)
+    - [Show File Content (`cat`)](#show-file-content-cat)
+    - [Read Files Comfortably (`less`)](#read-files-comfortably-less)
+    - [Show File Start (`head`)](#show-file-start-head)
+    - [Show File End (`tail`)](#show-file-end-tail)
+    - [Create Empty Files (`touch`)](#create-empty-files-touch)
 
-## Change Directory (`cd`): Move between directories.
+---
 
-- `cd /path/to/directory`: Change to the specified directory.
-- `cd ..`: Move up one directory level.
-- `cd ~` or `cd $HOME`: Go to your home directory.
-- `cd -`: Switch to the previous directory you were in.
-- `cd /`: Go to the root directory.
-- `pushd /path/to/directory`: Save the current directory on a stack and change to the specified directory.
-- `popd`: Return to the directory at the top of the stack.
+## Moving Around Folders
 
-## Absolute vs Relative Paths
+### Change Directory (`cd`)
 
-- **Absolute Path**: The full path from the root directory (e.g., `/home/user/documents`).
+Move between folders using these commands:
 
-- **Relative Path**: The path relative to the current directory (e.g. if we are in `/home/user`, then `documents` than we can go to `/` by using `cd ../..` )
+```bash
+cd /path/to/folder     # Go to a specific folder
+cd ..                  # Go up one level
+cd ~                   # Go to your home folder
+cd -                   # Go back to previous folder
+cd /                   # Go to the root (top) folder
+```
 
-## Exploring FileSystem
+**Advanced:**
 
-- `ls`: List files and directories in the current directory.
+```bash
+pushd /path/to/folder  # Save current location and move
+popd                   # Return to saved location
+```
 
-  - `ls -l`: List with detailed information (permissions, owner, size, modification date).
-  - `ls -a`: List all files, including hidden files.
-  - `ls -h`: Human-readable file sizes.
-  - `ls -R`: Recursively list subdirectories.
-  - `ls -t`: Sort by modification time.
-  - `ls -S`: Sort by file size.
-  - `ls -i`: Show inode numbers.
-  - `ls -d */`: List only directories.
+---
 
-- `tree`: Display directory structure in a tree-like format (may need to install).
+### Understanding Paths
 
-  - `tree -L n`: Limit the display to `n` levels deep.
-  - `tree -a`: Include hidden files in the display.
-  - `tree -d`: List directories only.
-  - `tree -h`: Show file sizes in a human-readable format.
-  - `tree -f`: Print the full path prefix for each file.
+**Absolute Path** — Full address from the root:
 
-- `pwd`: Print the current working directory.
-- `find`: Search for files and directories.
+- Example: `/home/user/documents`
 
-  - Example: `find /path/to/search -name "filename"` to find a file by name.
-  - Example: `find . -type d -name "dirname"` to find a directory by name in the current directory.
-  - Example: `find /path/to/search -type f -size +100M` to find files larger than 100MB.
-  - Example: `find /path/to/search -type f -mtime -7` to find files modified in the last 7 days.
-  - Example: `find /path/to/search -type f -perm 644` to find files with specific permissions.
-  - Example: `find /path/to/search -type f -exec grep -l "search_string" {} +` to find files containing a specific string.
-  - Example: `find /path/to/search -type f -delete` to delete files found (use with caution).
-  - Example: `find /path/to/search -type f -exec chmod 644 {} +` to change permissions of found files.
+**Relative Path** — Address from where you are now:
 
-## Hard Links vs Soft Links
+- Example: If you're in `/home/user`, then `documents` is the relative path
+- Use `cd ../..` to go up two levels
+
+---
+
+## Looking Around
+
+### List What's Here (`ls`)
+
+See what's inside a folder.
+
+**Basic:**
+
+```bash
+ls          # Show files and folders
+ls -l       # Show details (size, date, owner)
+ls -a       # Show hidden files too
+ls -h       # Show sizes in KB, MB, GB
+ls -R       # Show contents of subfolders too
+ls -d */    # Show only folders
+```
+
+**Sorting:**
+
+```bash
+ls -t       # Sort by date (newest first)
+ls -S       # Sort by size (biggest first)
+```
+
+**Special:**
+
+```bash
+ls -d */    # Show only folders
+ls -i       # Show file IDs
+ls --full-time  # Show full date/time
+ls -l --time-style=long-iso  # Custom date format
+```
+
+---
+
+### Show as Tree (`tree`)
+
+See folder structure as a diagram.
+
+```bash
+tree             # Show everything as a tree
+tree -L 2        # Go only 2 levels deep
+tree -a          # Include hidden files
+tree -d          # Show only folders
+tree -h          # Show file sizes
+tree -f          # Show full paths
+```
+
+---
+
+### Where Am I? (`pwd`)
+
+Show your current location.
+
+```bash
+pwd              # Print current folder path
+```
+
+---
+
+## Working with Folders
+
+### Create Folders (`mkdir`)
+
+Make new folders.
+
+```bash
+mkdir new_folder                    # Create one folder
+mkdir -p path/to/new/folder        # Create nested folders
+mkdir -v new_folder                # Show confirmation
+```
+
+---
+
+### Delete Empty Folders (`rmdir`)
+
+Remove folders with nothing inside.
+
+```bash
+rmdir folder_name       # Delete empty folder
+rmdir -v folder_name    # Show confirmation
+```
+
+**Note:** Only works if folder is completely empty!
+
+---
+
+### Delete Any Folder (`rm`)
+
+Remove folders even if they have files inside.
+
+```bash
+rm -r folder_name       # Delete folder and contents
+rm -ri folder_name      # Ask before deleting each file (safer!)
+rm -rf folder_name      # Force delete (⚠️ dangerous!)
+rm -v folder_name       # Show what's being deleted
+```
+
+**Warning:** `rm -rf` deletes without asking — be very careful!
+
+---
+
+## Moving and Copying
+
+### Move or Rename (`mv`)
+
+Move files or change their names.
+
+```bash
+mv old.txt new.txt              # Rename a file
+mv file.txt /path/to/folder/    # Move to another folder
+mv -i file.txt /path/           # Ask before replacing (safer)
+mv -v file.txt /path/           # Show what's happening
+```
+
+---
+
+### Copy (`cp`)
+
+Make copies of files or folders.
+
+```bash
+cp file.txt /path/              # Copy file
+cp -r folder/ /path/            # Copy folder and contents
+cp -i file.txt /path/           # Ask before replacing
+cp -v file.txt /path/           # Show what's happening
+cp -p file.txt /path/           # Keep original date/time
+```
+
+---
+
+## Creating Links
+
+### What Are Links?
+
+Links let you access the same file from different places.
 
 ### Hard Links
 
-- A hard link is a direct reference to the physical data on the disk.
-- Multiple hard links can point to the same inode (data block).
-- Deleting one hard link does not affect the others; the data remains until all hard links are deleted.
-- Hard links cannot span different filesystems.
+**Think of it as:** Multiple names for the same file.
 
-#### Example of Creating a Hard Link
-
-```shell
-ln original_file.txt hard_link.txt
+```bash
+ln original.txt hardlink.txt
 ```
 
-- Here both `original_file.txt` and `hard_link.txt` point to the same data on the disk.
-- Modifying one will reflect in the other.
+**How it works:**
 
-### Soft Links (Symbolic Links)
+- Both names point to the same actual file
+- Changing one changes both
+- File only deleted when all links are removed
+- Cannot link across different drives
+- Cannot link folders
 
-- A soft link is a reference that points to another file or directory by its path.
-- Soft links can span different filesystems.
-- If the original file is deleted, the soft link becomes broken (dangling link).
-- Soft links can link to directories.
-- Soft links have their own inode.
+---
 
-#### Example of Creating a Soft Link
+### Soft Links
 
-```shell
-ln -s /path/to/original_file.txt soft_link.txt
+**Think of it as:** A shortcut that points to another file.
+
+```bash
+ln -s /path/to/original.txt shortcut.txt
 ```
 
-- Here, `soft_link.txt` points to the path of `original_file.txt`.
-- If `original_file.txt` is deleted, `soft_link.txt` will no longer work.
-- Modifying the original file will reflect in the soft link as it points to the same data.
+**How it works:**
 
-#### What is the use of Links?
+- Points to the location of the original
+- If original is deleted, link breaks
+- Can link across different drives
+- Can link folders
+- More flexible
 
-- Links (both hard and soft) provide flexibility in file management.
-- They allow multiple references to the same data without duplicating it.
-- They help in organizing files and directories efficiently.
-- They can be used to create shortcuts or aliases for frequently accessed files or directories.
-- They facilitate easier file sharing and collaboration by providing multiple access points to the same data.
+**Why use links?**
+
+- Save disk space
+- Access same file from different places
+- Create shortcuts
+- Organize files without moving them
+
+---
+
+## Working with Files
+
+### Count Things (`wc`)
+
+Count lines, words, and characters.
+
+```bash
+wc file.txt         # Show lines, words, and bytes
+wc -l file.txt      # Count lines only
+wc -w file.txt      # Count words only
+wc -c file.txt      # Count bytes only
+```
+
+---
+
+### Show File Content (`cat`)
+
+Display or combine files.
+
+```bash
+cat file.txt                    # Show file content
+cat file1.txt file2.txt        # Show multiple files
+cat -n file.txt                # Show with line numbers
+cat > new.txt                  # Create file (Ctrl+D to save)
+cat >> file.txt                # Add to end of file
+```
+
+---
+
+### Read Files Comfortably (`less`)
+
+View files with easy scrolling.
+
+```bash
+less file.txt          # Open file for reading
+```
+
+**While reading:**
+
+- Arrow keys or `j`/`k` — Move up/down
+- `q` — Quit
+- `/word` — Search for "word"
+
+**Options:**
+
+```bash
+less -N file.txt       # Show line numbers
+less -S file.txt       # Don't wrap long lines
+less +G file.txt       # Start at end
+less +F file.txt       # Follow new lines (for logs)
+```
+
+---
+
+### Show File Start (`head`)
+
+See the beginning of a file.
+
+```bash
+head file.txt          # Show first 10 lines
+head -n 5 file.txt     # Show first 5 lines
+head -c 20 file.txt    # Show first 20 bytes
+```
+
+---
+
+### Show File End (`tail`)
+
+See the end of a file.
+
+```bash
+tail file.txt          # Show last 10 lines
+tail -n 5 file.txt     # Show last 5 lines
+tail -f file.txt       # Keep showing new lines (for logs)
+tail -F file.txt       # Follow even if file is replaced
+```
+
+---
+
+### Create Empty Files (`touch`)
+
+Make new empty files or update file times.
+
+```bash
+touch file.txt                          # Create empty file
+touch -c file.txt                       # Update time only (don't create)
+touch -d "2024-06-15 12:30" file.txt   # Set specific date/time
+touch -a file.txt                       # Update access time only, it uses current time
+touch -m file.txt                       # Update modification time only, it uses current time
+touch -t 202406151230 file.txt            # Set date/time in YYYYMMDDhhmm format
+```

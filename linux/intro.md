@@ -14,6 +14,9 @@
     - [Locating](#locating)
       - [Locating Programs](#locating-programs)
     - [Directory Navigation Commands](#directory-navigation-commands)
+  - [Tips for Documentation](#tips-for-documentation)
+    - [Using `man` Pages](#using-man-pages)
+  - [`info` Pages](#info-pages)
 
 ## What is Linux?
 
@@ -304,3 +307,43 @@ ls -l /home/user
   cd $HOME              # Go to home directory
   cd -                   # Go to previous directory
   ```
+
+## Tips for Documentation
+
+### Using `man` Pages
+
+- The `man` command shows the manual for other commands.
+
+  ```shell
+  man command
+  ```
+
+  - Example:
+
+    ```shell
+    man ls
+    ```
+
+    This shows the manual for the `ls` command, explaining its options and usage.
+
+- To exit the `man` page, press `q`.
+
+## `info` Pages
+
+- The `info` command provides more detailed documentation than `man`.
+
+  ```shell
+  info command
+  ```
+
+  - Example:
+
+    ```shell
+    info ls
+    ```
+
+    This shows the info page for the `ls` command, which may include additional details and examples.
+
+- To navigate `info` pages:
+  - Use the arrow keys to move up and down.
+  - Press `q` to quit the info page.
