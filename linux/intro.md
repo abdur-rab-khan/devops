@@ -16,7 +16,7 @@
     - [Directory Navigation Commands](#directory-navigation-commands)
   - [Tips for Documentation](#tips-for-documentation)
     - [Using `man` Pages](#using-man-pages)
-  - [`info` Pages](#info-pages)
+    - [`info` Pages](#info-pages)
 
 ## What is Linux?
 
@@ -51,6 +51,8 @@ Linux is a free, open-source operating system. You can find it running on:
   - SUSE Linux Enterprise
   - Linux Mint
   - Manjaro
+
+  ![Linux Distributions](./images/linux-distro.png)
 
 - **How to pick one:**
 
@@ -166,31 +168,13 @@ Linux is a free, open-source operating system. You can find it running on:
   - **CIFS/SMB** - Share with Windows computers
   - **GlusterFS** - Spread storage across multiple servers
 
-#### The Filesystem Hierarchy Standard (FHS)
+#### The [Filesystem](./topics/06_file-system/file-system.md) Hierarchy Standard (FHS)
 
 - The FHS defines the directory structure and directory contents in Linux systems.
 
 - **Key Directories:**
 
-  ```mermaid
-  graph LR
-          root["/"] --> bin["/bin<br/>ls, cp, mkdir"]
-          root --> sbin["/sbin<br/>fsck, reboot"]
-          root --> etc["/etc<br/>nginx.conf, ssh config"]
-          root --> home["/home<br/>/home/john"]
-          root --> root_dir["/root<br/>Root user home"]
-          root --> var["/var<br/>logs, cache"]
-          root --> tmp["/tmp<br/>Temp files"]
-          root --> usr["/usr<br/>User programs"]
-          root --> opt["/opt<br/>Chrome, Slack"]
-          root --> boot["/boot<br/>vmlinuz, grub"]
-          root --> dev["/dev<br/>sda, tty"]
-          root --> proc["/proc<br/>Process info"]
-          root --> sys["/sys<br/>Hardware info"]
-          root --> media["/media<br/>USB, DVD"]
-          root --> mnt["/mnt<br/>Mounted drives"]
-          root --> lib["/lib<br/>System libraries"]
-  ```
+  ![Filesystem Hierarchy](./images/file-system.png)
 
   > **Directory Usage Examples:**
   >
@@ -328,7 +312,7 @@ ls -l /home/user
 
 - To exit the `man` page, press `q`.
 
-## `info` Pages
+### `info` Pages
 
 - The `info` command provides more detailed documentation than `man`.
 

@@ -30,6 +30,7 @@
     - [Read Files Comfortably (`less`)](#read-files-comfortably-less)
     - [Show File Start (`head`)](#show-file-start-head)
     - [Show File End (`tail`)](#show-file-end-tail)
+  - [Show File in Scrollable (`less`)](#show-file-in-scrollable-less)
     - [Create Empty Files (`touch`)](#create-empty-files-touch)
 
 ---
@@ -116,6 +117,12 @@ tree -a          # Include hidden files
 tree -d          # Show only folders
 tree -h          # Show file sizes
 tree -f          # Show full paths
+
+# SORTING
+-v         # Sort the output alphabetically
+-t        # Sort by modification time
+-c        # Sort by last status change time
+-r       # Reverse the order of the sort
 ```
 
 ---
@@ -328,6 +335,14 @@ tail -F file.txt       # Follow even if file is replaced
 ```
 
 ---
+
+## Show File in Scrollable (`less`)
+
+View files with easy scrolling.
+
+```bash
+less file.txt          # Open file for reading
+```
 
 ### Create Empty Files (`touch`)
 
