@@ -2,6 +2,16 @@
 
 > Bash Script file contains the **linux** commands in a single file to automate tasks. It help to run multiple commands at once.
 
+- [BASH SCRIPT](#bash-script)
+  - [First Script](#first-script)
+  - [Important Things of Bash Script](#important-things-of-bash-script)
+    - [1. Variables](#1-variables)
+    - [2. Loops](#2-loops)
+    - [3. Writing Output](#3-writing-output)
+    - [4. Conditional Statements](#4-conditional-statements)
+    - [5. Functions](#5-functions)
+    - [6. Comments](#6-comments)
+
 ## First Script
 
 - Creating a bash script file with `.sh` extension, it also works without extension.

@@ -281,7 +281,9 @@ cat file.txt                    # Show file content
 cat file1.txt file2.txt        # Show multiple files
 cat -n file.txt                # Show with line numbers
 cat > new.txt                  # Create file (Ctrl+D to save)
+cat << EOF > new.txt      # Create file with multiple lines (Ctrl+D to save)
 cat >> file.txt                # Add to end of file
+cat file1.txt file2.txt > combined.txt  # Combine files
 ```
 
 ---
@@ -330,7 +332,7 @@ See the end of a file.
 ```bash
 tail file.txt          # Show last 10 lines
 tail -n 5 file.txt     # Show last 5 lines
-tail -f file.txt       # Keep showing new lines (for logs)
+less -f file.txt       # Monitor continue growing file in real-time
 tail -F file.txt       # Follow even if file is replaced
 ```
 
