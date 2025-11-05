@@ -133,6 +133,38 @@ ping example.com
 | `-s size`     | Packet size (bytes)                 | `ping -s 100 google.com` |
 | `-W timeout`  | Wait time for response (seconds)    | `ping -W 3 google.com`   |
 
+### Check Open Network Ports: `netstat | ss`
+
+**Useful `netstat` Options:**
+
+| Option | Description                 | Example      |
+| ------ | --------------------------- | ------------ |
+| `-t`   | Show TCP connections        | `netstat -t` |
+| `-u`   | Show UDP connections        | `netstat -u` |
+| `-l`   | Show listening ports        | `netstat -l` |
+| `-n`   | Show numerical addresses    | `netstat -n` |
+| `-p`   | Show process using the port | `netstat -p` |
+| `-a`   | Show all connections        | `netstat -a` |
+| `-s`   | Show statistics             | `netstat -s` |
+| `-r`   | Show routing table          | `netstat -r` |
+| `-i`   | Show network interfaces     | `netstat -i` |
+| `-c`   | Continuous output           | `netstat -c` |
+
+**Useful `ss` Options:**
+
+| Option | Description                 | Example |
+| ------ | --------------------------- | ------- |
+| `-t`   | Show TCP                    | `ss -t` |
+| `-u`   | Show UDP                    | `ss -u` |
+| `-l`   | Show listening ports        | `ss -l` |
+| `-n`   | Show numerical addresses    | `ss -n` |
+| `-p`   | Show process using the port | `ss -p` |
+| `-a`   | Show all connections        | `ss -a` |
+| `-s`   | Show statistics             | `ss -s` |
+| `-r`   | Show routing table          | `ss -r` |
+| `-i`   | Show network interfaces     | `ss -i` |
+| `-c`   | Continuous output           | `ss -c` |
+
 ### View Network Connections
 
 ```bash

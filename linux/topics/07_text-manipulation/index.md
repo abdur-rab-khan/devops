@@ -3,6 +3,7 @@
 - [Text Manipulation](#text-manipulation)
   - [`sed`](#sed)
   - [`awk`](#awk)
+  - [`jq` for JSON Manipulation](#jq-for-json-manipulation)
   - [File Manipulating Utilities](#file-manipulating-utilities)
   - [Regular Expressions](#regular-expressions)
   - [`strings`](#strings)
@@ -40,6 +41,22 @@
   awk '{sum += $1} END {print sum}' file.txt  # Sum the first column
   awk 'NR==3,NR==5 {print $0}' file.txt    # Print lines 3 to 5
   awk '{if ($3 > 50) print $0}' file.txt   # Print lines where the third column is greater than 50
+  ```
+
+## `jq` for JSON Manipulation
+
+- A lightweight and flexible command-line JSON processor.
+- It allows you to parse, filter, and transform JSON data easily.
+
+  ```bash
+  jq '.' file.json                        # Pretty-print JSON file
+  jq '.key' file.json                     # Extract value of 'key'
+  jq '.array[]' file.json                 # Iterate over elements in an array
+  jq 'select(.age > 30)' file.json       # Filter objects where age > 30
+  jq '.users[] | {name: .name, age: .age}' file.json  # Create a new object with selected fields
+  jq '.[0:5]' file.json                   # Get the first 5 elements of an array
+  jq 'map(select(.active == true))' file.json  # Get all active users from an array of objects
+  jq '. | length' file.json               # Get the length of an array or object
   ```
 
 ## File Manipulating Utilities

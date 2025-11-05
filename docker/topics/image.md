@@ -3,12 +3,18 @@
 - [Docker Image](#docker-image)
   - [Overview](#overview)
   - [Finding Images](#finding-images)
+  - [Image Tags](#image-tags)
+  - [Image repositories](#image-repositories)
   - [Try it out](#try-it-out)
   - [Commands for Docker Images](#commands-for-docker-images)
+    - [Pulling and Pushing Images](#pulling-and-pushing-images)
+    - [Listing Images](#listing-images)
+    - [Managing Images](#managing-images)
+    - [Building Images](#building-images)
 
 ## Overview
 
-- So think from where does a container come from?
+- So think where does a container come from?
 - A container is created from a Docker image, which contains its files and configuration.
 - A Docker image is a lightweight, standalone, and executable software package that includes everything needed to run a piece of software, which includes:
 
@@ -18,11 +24,11 @@
   - **Environment variables**
   - **Configuration files** (e.g., config.json, .env)
 
-- Docker images are built using a set of instructions defined in a `Dockerfile`.
+- Docker images are built (created) using a set of instructions defined in a `Dockerfile`.
 
 - **Example:**
 
-  - **`PostgreSQL** images could includes:
+  - **PostgreSQL** images could includes:
     - PostgreSQL server binaries
     - Configuration files (e.g., `postgresql.conf`)
     - Necessary libraries and dependencies
@@ -46,6 +52,30 @@
   docker search <image-name>
   ```
 
+## Image Tags
+
+- Docker images helps us to manage different versions of the same image using **tags**, which are labels that point to specific versions of an image.
+- Tags are appended to the image name using a colon (`:`) separator.
+- For example, the `nginx` image has multiple tags representing different versions:
+
+  - `nginx:latest` (the latest stable version)
+  - `nginx:1.21` (specific version 1.21)
+  - `nginx:alpine` (a lightweight version based on Alpine Linux)
+
+## Image repositories
+
+- An image repository is points to a private or public registry where actual **Docker Image** is stored, which helps us to pull or push the images.
+- For example:
+
+  - `nginx` is the image name.
+  - `library/nginx` is the repository name on Docker Hub.
+  - `docker.io/library/nginx` is the full path to the image repository on Docker Hub.
+
+- We can also store images in private registries such as:
+  - Amazon Elastic Container Registry (ECR)
+  - Google Container Registry (GCR)
+  - Azure Container Registry (ACR)
+
 ## Try it out
 
 1. Let's search for the official `nginx` image on Docker Hub:
@@ -68,15 +98,76 @@
 
 ## Commands for Docker Images
 
-1. `docker pull <image-name>`: Download an image from a registry.
-2. `docker image list`: List all images on the local machine.
+### Pulling and Pushing Images
 
-   - `docker image list --format "{{.Repository}}: {{.Tag}}"`: List images with custom format.
+- **Pull an image from a registry:**
 
-   - `docker image list --filter "dangling=true"`: List dangling images (images not tagged and not referenced by any container).
+  ```bash
+  docker pull <image-name>
+  ```
 
-3. `docker image rm <image-name>`: Remove one or more images from the local machine.
-4. `docker image inspect <image-name>`: Display detailed information about an image.
-5. `docker image tag <source-image> <target-image>`: Tag an image with a new name, which makes it easier to reference
-6. `docker image build -t <image-name> <path-to-dockerfile> or docker build -t <image-name> <path-to-dockerfile> `: Build a new image from a Dockerfile.
-   - `-t <image-name>`: Assign a name and optionally a tag in the 'name:tag' format.
+- **Push an image to a registry:**
+
+  ```bash
+  docker push <image-name>
+  # or
+  docker image push <image-name>
+  ```
+
+### Listing Images
+
+- **List all images:**
+
+  ```bash
+  docker image list
+  ```
+
+- **List images with custom format:**
+
+  ```bash
+  docker image list --format "{{.Repository}}: {{.Tag}}"
+  ```
+
+- **List dangling images** (untagged and unreferenced):
+
+  ```bash
+  docker image list --filter "dangling=true"
+  ```
+
+### Managing Images
+
+- **Remove an image:**
+
+  ```bash
+  docker image rm <image-name>
+  ```
+
+- **Tag an image:**
+
+  ```bash
+  docker image tag <source-image> <target-image> # Create a new image with a different (name or tag)
+  ```
+
+- **Inspect image details:**
+
+  ```bash
+  docker image inspect <image-name>
+  ```
+
+- **View image history:**
+
+  ```bash
+  docker image history <image-name>
+  ```
+
+### Building Images
+
+- **Build an image from a Dockerfile:**
+
+  ```bash
+  docker build -t <image-name> <path-to-dockerfile>
+  # or
+  docker image build -t <image-name> <path-to-dockerfile>
+  ```
+
+  - `-t <image-name>`: Assign a name and optionally a tag in the `name:tag` format

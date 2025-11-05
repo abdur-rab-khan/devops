@@ -24,10 +24,18 @@
 - **Note:** We can also create our own custom Docker images using a `Dockerfile`, So that other can run on their local machine or server as a container.
 
 - **Example**
+
   - For a simple web application with a Node.js backend and a MongoDB database, we can create two separate Docker containers:
     1. A container for the Node.js application.
     2. A container for the MongoDB database.
   - Both are run on it own isolated environments but can communicate with each other through Docker networking.
+
+- **Note:** By default, We can't access the running container's port from the host machine, we have to explicitly map the container's port to the host machine's port using the `-p` or `--publish` flag when running the container.
+- For example, to map port 80 of the container to port 8080 of the host machine, we can use the following command:
+
+  ```bash
+  docker run -p 8080:80 my-web-app
+  ```
 
 ## Key Concepts
 
@@ -59,6 +67,7 @@
 ### Listing Containers
 
 - `docker ps [OPTIONS]`: List running containers.
+
   - `docker ps -a`: List all containers, including stopped ones.
   - `docker ps -q`: List only container IDs.
   - `docker ps --filter "status=exited"`: List only stopped containers.
