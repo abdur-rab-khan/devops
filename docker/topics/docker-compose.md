@@ -11,14 +11,15 @@
     - [4. `env_file`](#4-env_file)
     - [5. `environment`](#5-environment)
     - [6. `volumes`](#6-volumes)
-    - [7. `networks` https://docs.docker.com/reference/compose-file/services/#networks](#7-networks-httpsdocsdockercomreferencecompose-fileservicesnetworks)
+    - [7. `networks`](#7-networks)
     - [8. `depends_on`](#8-depends_on)
     - [9. `restart`](#9-restart)
     - [10. `command`](#10-command)
-    - [11. `develop` https://docs.docker.com/reference/compose-file/develop/](#11-develop-httpsdocsdockercomreferencecompose-filedevelop)
-    - [12. `healthcheck`](#12-healthcheck)
-    - [13. `secrets` https://docs.docker.com/reference/compose-file/services/#secrets](#13-secrets-httpsdocsdockercomreferencecompose-fileservicessecrets)
-    - [14. `configs` https://docs.docker.com/reference/compose-file/services/#configs](#14-configs-httpsdocsdockercomreferencecompose-fileservicesconfigs)
+    - [11. `develop`](#11-develop)
+    - [12. `build`](#12-build)
+    - [13. `healthcheck`](#13-healthcheck)
+    - [14. `secrets` https://docs.docker.com/reference/compose-file/services/#secrets](#14-secrets-httpsdocsdockercomreferencecompose-fileservicessecrets)
+    - [15. `configs` https://docs.docker.com/reference/compose-file/services/#configs](#15-configs-httpsdocsdockercomreferencecompose-fileservicesconfigs)
   - [Commands](#commands)
   - [Additional Resources](#additional-resources)
     - [Interpolation](#interpolation)
@@ -223,7 +224,121 @@ volumes:
       subpath: sub # Mount subdirectory only
 ```
 
-### 7. `networks` <https://docs.docker.com/reference/compose-file/services/#networks>
+### 7. `networks`
+
+- The `networks` option let's us to define custom networks other than the default network created by the Docker Compose which by default allow all services in the same compose file to communicate with each other.
+- Other than default bridge network, we can create user-defined bridge networks, overlay networks, or macvlan networks.
+- Example a situation where we have three services, `frontend`, `backend` and `proxy`, and we want `frontend` have to communicate via `proxy` to reach `backend`, but `backend` should not be directly accessible from `frontend`.
+
+  ```yaml
+  services:
+    frontend:
+      image: my_frontend_app
+      networks:
+        - front_net
+
+    proxy:
+      image: my_proxy_app
+      networks:
+        - front_net
+        - back_net
+
+    backend:
+      image: my_backend_app
+      networks:
+        - back_net
+
+  networks:
+    front_net:
+      driver: bridge
+
+    back_net:
+      driver: bridge
+  ```
+
+  - In this example, `frontend` and `proxy` are connected to the `front_net` network, while `proxy` and `backend` are connected to the `back_net` network. This setup allows `frontend` to communicate with `backend` only through `proxy`.
+
+- **By default all compose services are corrected with the default network but we can modify it.**
+
+  ```yml
+  services:
+    app:
+      image: my_app
+      networks:
+        default: {}
+  ```
+
+  ```yml
+  # Customize default network
+  services:
+    app:
+      image: my_app
+      networks:
+        default:
+          name: a_network # Use a custom name
+          driver_opts: # pass options to driver for network creation
+          com.docker.network.bridge.host_binding_ipv4: 127.0.0.1
+  ```
+
+- **Attributes**
+
+1. `attachable`
+
+   - By default docker compose creates a private network for the services defined in the compose file, So if other container using same network name but outside from the compose file, they won't be able to communicate with each other.
+   - Setting `attachable: true` allows other containers (not defined in the compose file) to connect to this network.
+
+     ```yaml
+     networks:
+       my_network:
+         driver: bridge
+         attachable: true
+     ```
+
+2. `external`
+
+   - The `external: true` option allows us to use an existing network that is not managed by Docker Compose.
+   - By default Docker Compose alone creates and manages network lifecycle, but with `external`, we can connect services to a pre-existing network.
+
+     ```yaml
+     networks:
+       my_external_network:
+         external: true
+     ```
+
+3. `driver`
+
+   - The `driver` option specifies the network driver to use when creating the network.
+   - Common drivers include `bridge`, `overlay`, and `macvlan`.
+
+     ```yaml
+     networks:
+       my_network:
+         driver: overlay
+     ```
+
+4. `driver_opts`
+
+   - The `driver_opts` option allows us to pass additional options to the network driver during network creation.
+
+     ```yaml
+     networks:
+       my_network:
+         driver: bridge
+         driver_opts:
+           com.docker.network.bridge.enable_icc: "true"
+           com.docker.network.bridge.enable_ip_masquerade: "true"
+     ```
+
+5. `name`
+
+   - The `name` option allows us to specify a custom name for the network instead of the default name generated by Docker Compose.
+
+     ```yaml
+     networks:
+       my_network:
+         driver: bridge
+         name: custom_network_name
+     ```
 
 ### 8. `depends_on`
 
@@ -253,32 +368,33 @@ volumes:
 
   - `restart` When set to `true`, Compose restarts the service after it updates the dependent service mean it will restart the `web` service after `db` or `redis` is updated.
   - `condition` Sets the condition under which the service should be started. Possible values are:
+
     - `service_started` (default): Waits until the dependent service is started.
     - `service_healthy`: Waits until the dependent service passes its health check.
     - `service_completed_successfully`: Waits until the dependent service has completed successfully (only for services with `restart: "no"`).
 
-  ```yaml
-  services:
-    web:
-      image: my_web_app
-      depends_on:
+      ```yaml
+      services:
+        web:
+          image: my_web_app
+          depends_on:
+            db:
+              condition: service_healthy
+              restart: true
+            redis:
+              condition: service_started
+
         db:
-          condition: service_healthy
-          restart: true
+          image: postgres
+          healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
         redis:
-          condition: service_started
-
-    db:
-      image: postgres
-      healthcheck:
-        test: ["CMD-SHELL", "pg_isready -U postgres"]
-        interval: 10s
-        timeout: 5s
-        retries: 5
-
-    redis:
-      image: redis
-  ```
+          image: redis
+      ```
 
   - In this example, the `web` service will wait for the `db` service to be healthy before starting, and it will restart if the `db` service is updated. The `redis` service only needs to be started before `web`.
 
@@ -307,14 +423,172 @@ volumes:
   command: python app.py # String format
   ```
 
-### 11. `develop` <https://docs.docker.com/reference/compose-file/develop/>
+### 11. `develop`
 
-### 12. `healthcheck`
+- The `develop` option helps to set up a development environment which provides features like live code reloading, debugging tools, and other development-specific configurations.
+- It works based on **`action`** set to either `start` or `stop` and only works with [`build`](#12-build) services instead of `image` services.
+- It run using `docker compose watch` command to monitor file changes and trigger actions like rebuilding or restarting services.
+
+- **Attributes**
+
+- `watch`
+
+  - The `watch` attribute allows us to specify a list of rules that automatic service updated based on local file changes.
+  - It monitors the specified files or directories for changes and triggers actions accordingly.
+
+    ```yaml
+    develop:
+      watch:
+        - paths: ./frontend/src
+          action: restart
+    ```
+
+1. `action`
+
+   - The `action` attribute defines what action to take when a change is detected in the specified paths.
+
+     - `rebuild`: Rebuilds the service's image when a change is detected.
+     - `restart`: Restarts the service's container when a change is detected.
+     - `sync`: Syncs the changed files into the running container without restarting it according to the `target` attribute.
+     - `sync+restart`: Syncs the changed files into the running container and then restarts it.
+     - `sync+exec`: Syncs the changed files into the running container and then executes a specified command inside the `exec` .
+
+2. `exec`
+
+   - The `exec` attribute specifies the command to be executed inside the running container when the `sync+exec` action is triggered.
+   - `exec` is used to define the command to run inside the container once it has started.
+
+     1. `command`: The command to execute inside the container.
+     2. `working_dir`: The working directory inside the container where the command will be executed.
+     3. `environment`: Environment variables to set for the command execution.
+     4. `user`: The user to run the command as inside the container.
+
+        ```yaml
+        develop:
+          watch:
+            - paths: ./backend/config
+              action: sync+exec
+              exec:
+                command: npm start
+        ```
+
+3. `ignore`
+
+   - The `ignore` attribute allows us to specify a list of files or directories to exclude from monitoring.
+   - Changes in these ignored paths will not trigger any actions.
+
+     ```yaml
+     develop:
+       watch:
+         - paths: ./frontend/src
+           action: restart
+           ignore:
+             - ./frontend/src/tests
+             - ./frontend/src/docs
+     ```
+
+4. `include`
+
+   - The `include` attribute allows us to specify additional files or directories to monitor for changes.
+   - Changes in these included paths will trigger the specified actions.
+
+     ```yaml
+     develop:
+       watch:
+         - paths: ./backend/src
+           action: rebuild
+           include:
+             - ./backend/src/utils
+             - ./backend/src/config
+     ```
+
+5. `path`
+
+   - The `path` attribute specifies the file or directory path to monitor for changes.
+   - `ignore` and `include` can be used to refine the monitoring behavior.
+
+     ```yaml
+     develop:
+       watch:
+         - paths: ./backend/src
+           action: rebuild
+           ignore:
+             - ./backend/src/temp
+           include:
+             - ./backend/src/config
+     ```
+
+6. `target`
+
+   - The `target` attribute works with the `sync` action to specify the destination path inside the container where the changed files should be synced.
+
+     ```yaml
+     develop:
+       watch:
+         - paths: ./frontend/src
+           action: sync
+           target: /app/src
+     ```
+
+### 12. `build`
+
+- `build` allows us to define to build a Docker image for a service from a specified context and Dockerfile, unlike `image` which pulls a pre-built image from a registry.
+- It is useful when we want to customize the image for our application or service.
+
+- **Attributes**
+
+1. `context`
+
+   - The `context` attribute define the path to the directory containing the **`Dockerfile`**.
+   - It can either be a **relative path** or a **URL** to a Git repository containing the Dockerfile.
+
+     ```yaml
+     build:
+       context: ./path/to/build/context
+     ```
+
+2. `dockerfile`
+
+   - The `dockerfile` attribute allows us to specify a custom Dockerfile name or location within the build context.
+   - By default, Docker Compose looks for a file named `Dockerfile` in the specified build context.
+
+     ```yaml
+     build:
+       context: ./path/to/build/context
+       dockerfile: Dockerfile.custom
+     ```
+
+3. `args`
+
+   - The `args` attribute allows us to pass build-time variables to the Dockerfile during the image build process.
+   - These variables can be used in the Dockerfile using the `ARG` instruction.
+
+     ```yaml
+     build:
+       context: ./path/to/build/context
+       args:
+         APP_ENV: production
+         API_KEY: abcdef12345
+     ```
+
+     ```yaml
+     # Using build args in Dockerfile
+     ARG APP_ENV
+     ARG API_KEY
+
+     ENV APP_ENV=${APP_ENV}
+     ENV API_KEY=${API_KEY}
+
+     RUN echo "Building for environment: $APP_ENV"
+     ```
+
+### 13. `healthcheck`
 
 - The `healthcheck` option allows us to check that's a service containers are healthy and running as expected.
 - It defines a command that Docker will run inside the container at specified intervals to determine the health status of the container.
 - If the health check fails, Docker can take actions based on the container's health status.
 - Compose file can override the values set in the Dockerfile.
+- `CMD` and `CMD-SHELL` are supported for the `test` option.
 
   ```yaml
   healthcheck:
@@ -327,9 +601,9 @@ volumes:
 
 - It command returns `0` for healthy, `1` for unhealthy, and `2` for unknown.
 
-### 13. `secrets` <https://docs.docker.com/reference/compose-file/services/#secrets>
+### 14. `secrets` <https://docs.docker.com/reference/compose-file/services/#secrets>
 
-### 14. `configs` <https://docs.docker.com/reference/compose-file/services/#configs>
+### 15. `configs` <https://docs.docker.com/reference/compose-file/services/#configs>
 
 ## Commands
 
