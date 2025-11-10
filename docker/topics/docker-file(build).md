@@ -13,6 +13,17 @@
     - [`ENV`](#env)
     - [`EXPOSE`](#expose)
     - [`HEALTHCHECK`](#healthcheck)
+  - [Build command](#build-command)
+  - [Build variables](#build-variables)
+    - [Scope of build variables](#scope-of-build-variables)
+    - [Pre-defined build variables](#pre-defined-build-variables)
+  - [Secrets](#secrets)
+  - [Types of secrets](#types-of-secrets)
+    - [`Secret mounts`](#secret-mounts)
+      - [Sources](#sources)
+      - [Target](#target)
+  - [Building best practices](#building-best-practices)
+    - [Use multi-stage builds](#use-multi-stage-builds)
 
 ## Overview
 
@@ -33,6 +44,8 @@
 - The `FROM` instruction initializes a new build stage and sets the base image (e.g., `ubuntu`, `alpine`, `node`, etc.) for subsequent instructions.
 - A valid Dockerfile must start with a `FROM` instruction, unless the `ARG` instruction is used to define build-time variables before the first `FROM`.
 - `FROM` can also be used multiple times in a single Dockerfile to create multi-stage builds, which helps in reducing the final image size by copying only the necessary artifacts from one stage to another.
+- `AS` keyword can be used to define the name of the build stage, which can be referenced later in the Dockerfile.
+  - It can be used in multi-stage builds to copy artifacts from one stage to another using `COPY --from=<stage-name>`.
 - Example:
 
   ```Dockerfile
@@ -371,3 +384,216 @@
   - `0`: Healthy
   - `1`: Unhealthy
   - `2`: reserved (don't use this exit)
+
+## Build command
+
+- The `docker build` command is used to build a Docker image from a Dockerfile and a "context".
+- The build context is the set of files located in the specified PATH or URL. These files are sent to the Docker daemon during the build process.
+- Basic syntax:
+
+  ```bash
+  docker build [OPTIONS] PATH | URL | -
+  ```
+
+- **Commonly used options:**
+
+  1. `-t, --tag`: Tags the image with a name and optionally a tag in the 'name:tag' format.
+
+     ```bash
+     docker build -t myapp:latest .
+     ```
+
+  2. `-f, --file`: Specifies the path to the Dockerfile to use for the build.
+
+     ```bash
+     docker build -f /path/to/Dockerfile .
+     ```
+
+  3. `--build-arg`: Sets build-time variables that can be accessed in the Dockerfile using the `ARG` instruction.
+
+     ```bash
+     docker build --build-arg APP_VERSION=2.0.0 -t myapp:2.0.0 .
+     ```
+
+  4. `--no-cache`: Disables the build cache, forcing Docker to build the image from scratch without using any cached layers.
+
+     ```bash
+     docker build --no-cache -t myapp:latest .
+     ```
+
+  5. `--pull`: Always attempts to pull a newer version of the base image during the build process.
+
+     ```bash
+     docker build --pull -t myapp:latest .
+     ```
+
+  6. `--target`: Specifies the target stage to build in a multi-stage Dockerfile.
+
+     ```bash
+     docker build --target builder -t myapp:builder .
+     ```
+
+  7. `--progress`: Sets the type of progress output (auto, plain, tty).
+
+     ```bash
+     docker build --progress=plain -t myapp:latest .
+     ```
+
+  8. `--compress`: Compresses the build context using gzip to reduce the size of data sent to the Docker daemon.
+
+     ```bash
+     docker build --compress -t myapp:latest .
+     ```
+
+  9. `--secret`: Allows passing secret files to the build process, which can be accessed in the Dockerfile using the `RUN --mount=type=secret` syntax.
+
+     ```bash
+     docker build --secret id=mysecret,src=/path/to/secret.txt -t myapp:latest .
+     ```
+
+## Build variables
+
+- **`ARG`**
+
+- During the build process, Docker provides several built-in/custom variables that can be used in the Dockerfile.
+- We can pass custom build-time variables using the `--build-arg` flag with the `docker build` command.
+
+### Scope of build variables
+
+- In Dockerfile, there are two types of build variables based on their scope:
+
+  1. **Global scope**: Variables defined using the `ARG` instruction before any `FROM` instruction have a global scope and can be used in all stages of a multi-stage build.
+
+  2. **Stage scope**: Variables defined using the `ARG` instruction after a `FROM` instruction are limited to that specific build stage and cannot be accessed in other stages.
+
+  ![Docker Build ARG Scope](https://docs.docker.com/build/images/build-variables.svg)
+
+- **`ENV`**
+
+- Environment variables defined using the `ENV` instruction have a global scope and are available in all stages of a multi-stage build as well as in the running container.
+- They can be accessed by any instruction in the Dockerfile and by any process running inside the container.
+- Example:
+
+  ```Dockerfile
+  FROM ubuntu:20.04
+
+  ENV APP_ENV=production
+  ENV APP_PORT=8080
+
+  RUN echo "Environment: $APP_ENV"
+  RUN echo "Port: $APP_PORT"
+  ```
+
+### Pre-defined build variables
+
+- **Multi-platform build arguments**
+
+- Docker provides several pre-defined build variables that can be used in the Dockerfile to customize the build process based on the target platform.
+- Commonly used pre-defined build **(operation system, architecture of host system)** variables:
+
+  - `BUILDPLATFORM`: The platform on which the build is being executed (e.g., `linux/amd64`, `linux/arm64`, etc.).
+  - `BUILDOS`: The operating system of the build platform (e.g., `linux`, `windows`, etc.).
+  - `BUILDARCH`: The architecture of the build platform (e.g., `amd64`, `arm64`, etc.).
+  - `BUILDVARIANT`: The variant of the build platform (e.g., `v7`, `v8`, etc.).
+
+- The target (platform for which the image is being built) platform variables:
+
+  - `TARGETPLATFORM`: The platform for which the image is being built (e.g., `linux/amd64`, `linux/arm64`, etc.).
+  - `TARGETOS`: The operating system of the target platform (e.g., `linux`, `windows`, etc.).
+  - `TARGETARCH`: The architecture of the target platform (e.g., `amd64`, `arm64`, etc.).
+  - `TARGETVARIANT`: The variant of the target platform (e.g., `v7`, `v8`, etc.).
+
+- Example of using pre-defined build variables in Dockerfile:
+
+  ```Dockerfile
+  FROM alpine:latest
+  RUN echo "Building on platform: $BUILDPLATFORM"
+  RUN echo "Target platform: $TARGETPLATFORM"
+  ```
+
+## Secrets
+
+- Docker BuildKit allows us to securely pass sensitive information (like passwords, API keys, etc.) to the build process without including them in the final image.
+- Build arguments (`ARG`) and environment variables (`ENV`) are not secure for sensitive data, as they can be exposed in the image history.
+
+## Types of secrets
+
+### `Secret mounts`
+
+- A secret mount allows us to mount a secret file or environment variable into the build process than can be accessed during the build using the `RUN --mount=type=secret` syntax.
+- Secrets mounted this way are not included in the final image, ensuring that sensitive information is not exposed.
+- It follows two steps:
+
+1. Pass secret to build.
+
+   ```bash
+   docker build --secret id=mysecret,src=/path/to/secret.txt -t myapp:latest .
+   ```
+
+   - Using Docker Compose:
+
+   ```yaml
+   version: "3"
+   services:
+     app:
+       build:
+         context: .
+         secrets:
+           - mysecret
+
+   secrets:
+     file: /path/to/secret.txt
+   ```
+
+2. Access secret in Dockerfile.
+
+   ```Dockerfile
+    RUN --mount=type=secret,id=mysecret cat /run/secrets/mysecret
+   ```
+
+#### Sources
+
+- The source of the secret can be specified in different ways:
+
+  - `env`: Name of the environment variable containing the secret value.
+
+    ```bash
+    docker build --secret id=mysecret,env=MY_SECRET_ENV_VAR -t myapp:latest .
+    ```
+
+  - `file`: Inline secret value (not recommended for sensitive data).
+
+    ```bash
+    docker build --secret id=mysecret,file=/path/to/secret.txt -t myapp:latest .
+
+    # Or
+    docker build --secret id=mysecret,env=KUBECONFIG -t myapp:latest .
+    ```
+
+#### Target
+
+- When consuming the secret in the Dockerfile, it is mounted to the `/run/secrets/<id>` path by default, where `<id>` is the identifier specified when passing the secret during the build.
+- The following example takes secret it `aws` and mounts it to a file at `/run/secrets/aws`:
+
+  ```Dockerfile
+  RUN --mount=type=secret,id=aws cat /run/secrets/aws
+  ```
+
+- To mount the secret to a custom target path, we can use the `target` option:
+
+  ```bash
+  docker build --secret id=mysecret,src=/path/to/secret.txt,target=/custom/path/secret.txt -t myapp:latest .
+  ```
+
+- To mount a secret as an environment variable instead of a file, use the `env` option:
+
+  ```bash
+  RUN --mount=type=secret,id=aws-key-id,env=AWS_ACCESS_KEY_ID \
+    --mount=type=secret,id=aws-secret-key,env=AWS_SECRET_ACCESS_KEY \
+    --mount=type=secret,id=aws-session-token,env=AWS_SESSION_TOKEN \
+    aws s3 cp ...
+  ```
+
+## Building best practices
+
+### Use multi-stage builds
