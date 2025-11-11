@@ -24,6 +24,12 @@
       - [Target](#target)
   - [Building best practices](#building-best-practices)
     - [Use multi-stage builds](#use-multi-stage-builds)
+    - [Name your build stages](#name-your-build-stages)
+    - [Stop at a specific build stage](#stop-at-a-specific-build-stage)
+    - [Use a Previous stage as a new stage](#use-a-previous-stage-as-a-new-stage)
+    - [Exclude with `.dockerignore`](#exclude-with-dockerignore)
+    - [Decouple applications](#decouple-applications)
+    - [Leverage build cache](#leverage-build-cache)
 
 ## Overview
 
@@ -597,3 +603,226 @@
 ## Building best practices
 
 ### Use multi-stage builds
+
+- Multi-stage builds allows us to optimize the size of the final Docker image by using multiple `FROM` instructions each represents a separate build stage.
+- Each build stage have different base image and they can copy artifacts from one stage to another using the `COPY --from=<stage-name>` instruction.
+- The approach helps in reducing the final image size by including only the necessary files and dependencies required to run the applications, while excluding build tools and intermediate files.
+- Example of multi-stage build:
+
+  ```Dockerfile
+  # First stage: Build stage
+  FROM golang:1.24
+  WORKDIR /app
+  COPY << EOF ./main.go
+  package main
+
+  import "fmt"
+
+  func main() {
+      fmt.Println("Hello, World!")
+  }
+  EOF
+
+  RUN go build -o /bin/hello ./main.go
+
+
+  # Second stage: Final stage
+  FROM scratch
+  COPY --from=0 /bin/hello /bin/hello
+  CMD ["/bin/hello"]
+  ```
+
+- In the above example, the first stage uses the `golang` base image to build a GO application in that stage the approximate size is `1.3GB`.
+- The second stage uses the `scratch` base image (an empty image) and copies only the compiled binary from the first stage, resulting in a final image size of just a few megabytes.
+- So the final image only includes the last stage and excludes all the build dependencies, resulting in a smaller and more efficient image.
+- To build the multi-stage Dockerfile:
+
+  ```bash
+  docker build -t myapp:latest .
+  ```
+
+### Name your build stages
+
+- As we see in the above example, we can use the stage index (0, 1, etc.) to reference the build stages when copying artifacts.
+- However, we can also give meaningful names to the build stages using the `AS` keyword in the `FROM` instruction, `FROM <image> AS <stage-name>`.
+
+  ```Dockerfile
+  FROM golang:1.24 AS builder
+  WORKDIR /app
+  COPY . .
+
+  RUN go build -o /bin/hello ./main.go
+
+  FROM scratch
+  COPY --from=builder /bin/hello /bin/hello
+  CMD ["/bin/hello"]
+  ```
+
+- In docker we aren't limited to just use **stage names**, we can also use image names or IDs to copy artifacts from other images.
+- Example of copying from another image:
+
+  ```Dockerfile
+  FROM alpine:latest AS base
+  RUN echo "This is the base image" > /base.txt
+
+  FROM busybox:latest
+  COPY --from=nginx:latest /etc/nginx/nginx.conf /etc/nginx/nginx.conf
+  ```
+
+### Stop at a specific build stage
+
+- When we building a multi-stage Dockerfile, we aren't limited to build entire Dockerfile, we can also specify a target build stage using the `--target` flag with the `docker build` command.
+- For example `docker build --target <stage-name> -t myapp:latest .` will build the Dockerfile up to the specified stage and create an image from that stage.
+
+### Use a Previous stage as a new stage
+
+- In multi-stage builds, we can use a previous build stage as the base for a new stage by referencing it in the `FROM` instruction.
+- This allows us to reuse artifacts and dependencies from earlier stages, which can help in optimizing the build process and reducing duplication.
+- Example:
+
+  ```Dockerfile
+  ARG APP_VERSION=1.0.0
+  ARG OTHER_INFO=default-info
+
+  FROM node:alpine AS builder
+
+  ENV APP_VERSION=${APP_VERSION} \
+      OTHER_INFO=${OTHER_INFO}
+
+  RUN npm install -g pnpm && \
+      apk update && \
+      apk add --no-cache \
+      git \
+      curl \
+      build-base
+
+  FROM builder AS frontend
+
+  WORKDIR /home/app/frontend
+  COPY ./frontend/package.json ./frontend/pnpm-lock.yaml ./
+
+  RUN pnpm install
+
+  FROM builder AS backend
+
+  WORKDIR /home/app/backend
+  COPY ./backend/package.json ./backend/pnpm-lock.yaml ./
+
+  RUN pnpm install
+  ```
+
+  - In the above example, the `frontend` and `backend` stages both use the `builder` stage as their base, allowing them to share the same dependencies and environment setup defined in the `builder` stage.
+
+### Exclude with `.dockerignore`
+
+- Only add the file that are required for building the image to the build context.
+- Otherwise, it can lead to larger build context size, which can slow down the build process and increase the size of the final image.
+- To exclude unnecessary files and directories from the build context, we can use a `.dockerignore` file.
+- The `.dockerignore` file works similarly to a `.gitignore` file, where we can specify patterns to exclude files and directories from being sent to the Docker daemon during the build process.
+- Example of a `.dockerignore` file:
+
+  ```plaintext
+  node_modules
+  dist
+  .git
+  .env
+  *.log
+  ```
+
+### Decouple applications
+
+- When building Docker images for applications, we should aim to decouple different components or services into separate images, means that each image should have one process or service this is rule of thumb.
+- For example, If e-commerce application.
+
+  1. One image for the frontend (e.g., React, Angular).
+  2. One image for the backend (e.g., Node.js, Django).
+  3. One image for the database (e.g., MySQL, PostgreSQL).
+  4. One image for caching (e.g., Redis, Memcached).
+
+- This approach allows us to manage, scale, and update each component independently, leading to better maintainability and flexibility in deployment.
+- All these images are connected using single network or orchestration tools like Docker Compose or Kubernetes.
+- For example if we want to scale only the backend service, we can do so without affecting the frontend or database services.
+
+  ```yaml
+  version: "3"
+  services:
+    frontend:
+      image: my-frontend:latest
+      ports:
+        - "80:80"
+      networks:
+        - app-network
+
+    backend:
+      image: my-backend:latest
+      ports:
+        - "5000:5000"
+      networks:
+        - app-network
+      depends_on:
+        - db
+
+    db:
+      image: postgres:latest
+      environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: mydb
+      volumes:
+        - db-data:/var/lib/postgresql/data
+      networks:
+        - app-network
+
+  networks:
+    app-network:
+
+  volumes:
+    db-data:
+  ```
+
+  - Scaling only the backend service:
+
+    ```bash
+    docker-compose up --scale backend=3 -d
+    ```
+
+    - `--scale backend=3` will create 3 instances of the backend service while keeping the frontend and database services unchanged.
+
+### Leverage build cache
+
+- Docker uses a build cache to speed up the image build process by reusing previously build layers that have not changed.
+- To leverage the build cache effectively, we should structure our Dockerfile in a way that maximizes cache hits.
+- Let's see using an example:
+
+  ```Dockerfile
+  FROM ubuntu:latest
+
+  RUN apt-get update && apt-get install -y \
+      curl \
+      git \
+      build-essential
+
+  COPY main.c Makefile ./
+
+  WORKDIR /app
+
+  RUN make build
+  ```
+
+- Each instruction in Dockerfile creates a new layer in the image, think of it as images layers as a stack, with each layer adding more content on top of the layers that came before it.
+
+  ![Layer](https://docs.docker.com/build/images/cache-stack.png)
+
+- Whenever a layer changes, that layer will need to be rebuilt, For example, suppose we make a changes to our program in the `main.c` file.
+- After this change, the `COPY` command will have to run again in order to copy the updated `main.c` file into the image. that make invalidates the cache for that layer and **all subsequent layers**, including the `RUN make build` layer.
+
+  ![Layer Change](https://docs.docker.com/build/images/cache-stack-invalidated.png)
+
+  - Once a layer changes, then all downstream layers need to rebuilt, even if they haven't changed.
+
+- To optimize the build cache usage, we can follow these best practices:
+
+  1. **Order instructions wisely**: Put rarely-changing commands (like installing dependencies) at the top, and frequently-changing ones (like copying code) at the bottom.
+  2. **Combine commands**: Use `&&` to merge multiple commands into one `RUN` instruction, reducing layers.
+  3. **Use `.dockerignore`**: Exclude unnecessary files to speed up builds.
+  4. **Use build arguments**: Parameterize builds with `ARG` for flexibility without modifying the Dockerfile.

@@ -1,0 +1,202 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  --main-background: linear-gradient(
+    to right,
+    rgba(255, 0, 0, 0.8),
+    rgba(0, 0, 255, 0.8)
+  );
+  --text-color: #000000;
+  --heading-color: rgb(61, 43, 43);
+  --card-color: rgb(8, 109, 204);
+  --card-color-done: rgb(204, 8, 90);
+  --card-color-dark: rgb(5, 91, 172);
+}
+
+html,
+body {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  background: var(--main-background);
+  font-family: system-ui, Avenir, sans-serif;
+}
+
+p {
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+h1 {
+  color: var(--heading-color);
+  text-align: center;
+}
+
+body {
+  display: grid;
+  height: 100vh;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+}
+
+main {
+  width: 100%;
+  grid-column: 5 / 9;
+  grid-row: 2 / 8;
+  border-radius: 12px;
+  padding-inline: 12px;
+  padding-block: 12px;
+  backdrop-filter: blur(8px);
+  border: 0.5px solid rgb(54, 44, 44);
+  background-color: rgba(255, 255, 255, 0.671);
+}
+
+main header {
+  height: 108px;
+}
+
+.add-todo {
+  display: flex;
+  height: 36px;
+  column-gap: 6px;
+  align-items: center;
+}
+
+.add-todo button {
+  height: 110%;
+  padding-inline: 14px;
+  outline: none;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  background-color: tomato;
+  transition: background-color 0.6s;
+
+  &:hover {
+    background-color: rgb(245, 37, 0);
+  }
+
+  &:active {
+    background-color: black;
+  }
+
+  &:focus,
+  &:focus-visible {
+    outline: 2px solid midnightblue;
+    outline-offset: 2px;
+  }
+}
+
+.add-todo input {
+  flex: 1;
+  height: 100%;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+  padding-inline: 14px;
+  color: white;
+  background-color: blue;
+
+  &:focus,
+  &:focus-visible,
+  &:focus-visible {
+    outline: blue;
+    outline-width: 2px;
+    outline-offset: 2px;
+    outline-style: solid;
+  }
+
+  &::placeholder {
+    color: whitesmoke;
+  }
+}
+
+main section {
+  max-height: calc(100% - calc(108px + 12px + 12px + 6px));
+  margin-top: 12px;
+  overflow-y: auto;
+}
+
+.todo-container {
+  display: flex;
+  flex-direction: column;
+  row-gap: 8px;
+}
+
+.todo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  padding-inline: 12px;
+  border: 1.5px solid white;
+  background-color: var(--card-color);
+
+  &:nth-child(even) {
+    background-color: var(--card-color-dark);
+  }
+
+  &:has(:checked) {
+    & {
+      background-color: var(--card-color-done);
+    }
+    & p {
+      text-decoration: line-through;
+    }
+  }
+
+  & .content {
+    display: flex;
+    column-gap: 6px;
+    align-items: center;
+  }
+
+  & p {
+    color: white;
+    font-size: 16px;
+  }
+
+  & button {
+    padding-inline: 16px;
+    padding-block: 10px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    background-color: tomato;
+    transition: background-color 0.6s;
+
+    &:hover {
+      background-color: rgb(245, 37, 0);
+    }
+
+    &:active {
+      background-color: black;
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline: 2px solid white;
+      outline-offset: 2px;
+    }
+  }
+}
+
+@media screen and (max-width: 1250px) {
+  main {
+    grid-column: 4 / 10;
+  }
+}
+
+@media screen and (max-width: 850px) {
+  main {
+    grid-column: 3 / 11;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  main {
+    grid-column: 2 / 12;
+  }
+}
