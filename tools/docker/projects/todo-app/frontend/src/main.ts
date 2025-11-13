@@ -34,7 +34,12 @@ const getTodoElement = (id: string, task: string, completed = false) => {
 
 const loadTodos = async (): Promise<void> => {
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_BASE_URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch todos");

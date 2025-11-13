@@ -1,0 +1,45 @@
+services:
+  db:
+    container_name: mongodb
+    image: mongo:latest
+    environment:
+      # - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh", "--eval", "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    volumes:
+      - mongo-data:/data/db
+
+  backend:
+    container_name: todo-backend
+    build:
+      context: ./backend
+    ports:
+      - 3000:3000
+    environment:
+      - MONGO_URL=mongodb://admin:password@db:27017/?authSource=admin
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    container_name: todo-frontend
+    build:
+      context: ./frontend
+    ports:
+      - 5173:5173
+    depends_on:
+      backend:
+        condition: service_started
+        restart: true
+
+volumes:
+  mongo-data:
+    name: mongo-data

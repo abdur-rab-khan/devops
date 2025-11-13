@@ -22,10 +22,9 @@ FROM node:24-alpine AS production
 
 WORKDIR /usr/src/todo-backend
 
-COPY package.json pnpm-lock.yaml ./
 COPY --from=build /usr/src/todo-backend/dist ./dist
 COPY --from=build /usr/src/todo-backend/node_modules ./node_modules
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+ENTRYPOINT ["node", "dist/index.js"]

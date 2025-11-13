@@ -9,10 +9,10 @@ const connectDB = async () => {
 
   try {
     const db = await mongoose.connect(URL, {
-      dbName: "todo-app",
+      dbName: "db",
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
+      serverSelectionTimeoutMS: 5000,
     });
     console.log("🥳 Mongodb connected");
     return db;

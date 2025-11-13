@@ -6,7 +6,7 @@ const app: Express.Application = Express();
 // CORS Configuration
 app.use(
   cors({
-    origin: "*", // Allow all origins (you can restrict this to specific domains)
+    origin: "http://localhost:5173", // Allow all origins (you can restrict this to specific domains)
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type"],
   })

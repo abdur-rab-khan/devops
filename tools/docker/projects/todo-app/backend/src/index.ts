@@ -2,7 +2,7 @@ import app from "./server.js";
 import dotenv from "dotenv";
 import connectDB from "./db/mongodb.js";
 
-dotenv.config();
+dotenv.config({ path: ".env", override: false });
 
 const PORT = 3000;
 

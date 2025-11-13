@@ -12,18 +12,18 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@10.22.0",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "mongoose": "^8.19.2",
-    "nodemon": "^3.1.10"
+    "mongoose": "^8.19.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.5",
     "concurrently": "^9.2.1",
-    "typescript": "^5.7.2"
+    "nodemon": "^3.1.11",
+    "typescript": "^5.9.3"
   }
 }
